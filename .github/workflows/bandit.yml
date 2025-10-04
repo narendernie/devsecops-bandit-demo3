@@ -1,0 +1,32 @@
+name: Security - Bandit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Bandit
+        run: pip install --upgrade pip bandit
+
+      - name: Run Bandit (fail on MEDIUM/HIGH)
+        run: |
+          bandit -r . -s medium -i medium -f txt -o bandit-report.txt
+
+      - name: Upload Bandit report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.txt
